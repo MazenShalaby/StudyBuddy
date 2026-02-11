@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Delete {{room.name}} Room
+{% endblock title %}
+
+{% block content %}
+    <p>Are you sure you want to delete "{{room.name}}"?</p>
+    <form action="" method="post">
+        {% csrf_token %}
+        <input type="submit" value="Delete">
+    </form>
+
+{% endblock content %}

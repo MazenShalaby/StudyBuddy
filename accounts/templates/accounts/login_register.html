@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+
+{% block title %}
+    {% if page == 'register' %}
+        Register
+    {% elif page == 'login' %}
+        Login
+    {% endif %}
+{% endblock title %}
+
+
+{% block content %}
+    {% if page == 'register' %}
+        <h2>Register</h2>
+        <form action="" method="post">
+            {% csrf_token %}
+            {{form.as_p}}
+            <input type="submit" value="Register">
+        </form>
+    {% elif page == 'login' %}
+        <h2>Login</h2>
+        <form action="" method="post">
+            {% csrf_token %}
+            {{form.as_p}}
+            <input type="submit" value="Login">
+        </form>
+    {% endif %}
+{% endblock content %}

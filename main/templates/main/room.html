@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {{room.name}} Room
+{% endblock title %}
+
+{% block content %}
+    <h4>{{room.name}}</h4>
+    <ul>
+        <li>Topic: {{room.topic.name}}</li>
+        <li>Description: {{room.description}}</li>
+        <li>Host: {{room.host.username}}</li>
+        <li>Time Created: {{room.created_at|timesince}} age</li>
+    </ul>
+    {% if request.user == room.host %}
+        <a href="{% url 'main:update-room' room.id %}">Update</a> |
+        <a href="{% url 'main:delete-room' room.id %}">Delete</a>
+    {% endif %}
+    <p><a href="{% url 'main:rooms' %}">Go Back</a></p>
+    <hr>
+    <div class="conversation">
+        <h2>Room Conversation</h2>
+        {% for message in room_messages %}
+        <ul>
+            <li>User: <b>{{message.user.username}}</b> {{message.created_at|timesince}} ago</li>
+            <p>Message Body: {{message.body}}</p>
+        </ul>
+        <hr>
+        {% endfor %}
+        <div class="conversation-form">
+            <form action="{% url 'main:room' room.id %}" method="post">
+                {% csrf_token %}
+                <input type="text" name="msg" id="" placeholder="Enter your messages here...">
+                <input type="submit" value="send">
+            </form>
+        </div>
+    </div>
+{% endblock content %}
