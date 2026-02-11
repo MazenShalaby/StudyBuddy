@@ -1,10 +1,16 @@
 from django.forms import ModelForm
 
-from .models import Room
+from .models import Room, Message
 # Create your froms here.
 
 
 class RoomCreationForm(ModelForm):
     class Meta:
         model = Room
-        fields = ('host', 'name', 'topic', 'description', 'participants')
+        fields = ('name', 'topic', 'description')
+        
+        
+class UpdateMessageForm(ModelForm):
+    class Meta:
+        model = Message
+        fields = ('body',)

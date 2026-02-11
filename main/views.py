@@ -5,20 +5,24 @@ from django.db.models import Q
 from django.http import HttpResponse
 
 from .models import Topic, Room, Message
-from .forms import RoomCreationForm
+from .forms import RoomCreationForm, UpdateMessageForm
 # Create your views here.
 
 
 def home(request):
+    if request.user.is_authenticated:
+        return redirect('main:rooms')
     return render(request, 'main/home.html', context={})
 
-####################################################### [Rooms] ####################################################
+
+####################################################### [Room] ####################################################
+
 
 @login_required(login_url='accounts:login')
 def rooms(request):
     rooms = Room.objects.select_related('topic')
-    topics = Topic.objects.prefetch_related('topic_rooms')
-    
+    topics = Topic.objects.prefetch_related('topic_rooms')[:3] # limiting the topics to only 3 to be shown.
+    recent_activity_messages = Message.objects.select_related('room')
     q = request.GET.get('q', '')
     
     if request.method == 'GET':
@@ -28,7 +32,7 @@ def rooms(request):
             Q(topic__name__icontains=q)
             )
     
-    context = {'rooms': rooms, 'topics': topics}
+    context = {'rooms': rooms, 'topics': topics, 'recent_activity_messages': recent_activity_messages}
     return render(request, 'main/rooms.html', context)
 
 
@@ -37,16 +41,29 @@ def room(request, room_id):
     room = get_object_or_404(Room, id=room_id)
     room_messages = room.room_messages.all()
     
+    if request.method == 'POST':
+        message_body = request.POST.get('msg', '')
+        if message_body:
+            Message.objects.create(
+                user=request.user,
+                room = room,
+                body = message_body,
+            )
+        else:
+            messages.error(request, 'Message body must have a content and can\'t be left blank!') # show a msg to the user !
     context = {'room': room, 'room_messages': room_messages}
     return render(request, 'main/room.html', context)
 
 
 @login_required(login_url='accounts:login')
 def create_room(request):
+    
     if request.method == 'POST':
         form = RoomCreationForm(data=request.POST)
         if form.is_valid():
-            form.save()
+            new_form = form.save(commit=False)
+            new_form.host = request.user
+            new_form.save()
             return redirect('main:rooms')
         else:
             messages.error(request, "An error has been occured during room creation!")
@@ -79,6 +96,7 @@ def update_room(request, room_id):
 
 @login_required(login_url='accounts:login')
 def delete_room(request, room_id):
+    
     room = get_object_or_404(Room, id=room_id)
     if request.user == room.host:
         if request.method == 'POST':
@@ -89,3 +107,45 @@ def delete_room(request, room_id):
         
     context = {'room': room}
     return render(request, 'main/delete_room.html', context)
+
+
+####################################################### [Message] ####################################################
+
+
+@login_required(login_url='main:login')
+def delete_message(request, msg_id):
+    
+    message = get_object_or_404(Message, id=msg_id)
+    room = message.room
+    if request.user == message.user:
+        if request.method == 'POST':
+            message.delete()
+            return redirect('main:room', room_id=room.id)
+    else:
+        return HttpResponse("Your are not allowed to perform his action!")
+    
+    context = {'message': message, 'room': room}
+    return render(request, 'main/delete_message.html', context)
+
+
+@login_required(login_url='main:login')
+def update_message(request, msg_id):
+    
+    message = get_object_or_404(Message, id=msg_id)
+    room = message.room
+    form = UpdateMessageForm(instance=message)
+    if request.user == message.user:
+        if request.method == 'POST':
+            form = UpdateMessageForm(data=request.POST, instance=message)
+            if form.is_valid():
+                user = form.save(commit=False)
+                user.user = request.user
+                user.save()
+                return redirect('main:room', room_id=room.id)
+            else:
+                messages.error(request, "An error has been occured during updating the message!")
+    else:
+        return HttpResponse("Your are not allowed to perform his action!")
+    
+    context = {'message': message, 'room': room, 'form': form}
+    return render(request, 'main/update_message.html', context)

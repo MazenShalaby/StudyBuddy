@@ -24,19 +24,41 @@
         <a href="">More</a>
     </div>
 
-    <div class="rooms-contianer">
-        <h2>Available Study Rooms ({{rooms.count}})</h2>
-        <p><a href="{% url 'main:create-room' %}">+ Create Room</a></p>
+    <div class="body-contianer">
+
+        <div class="user-profile-container">
+            {% if user.profile_picture %}
+            <img src="{{user.profile_picture.url}}" width="80px" alt="">
+            {% else  %}
+                <p>No profile picture added yet!</p>
+            {% endif %}
+            
+            {% if request.user != user %}
+                <p>{{user.first_name}} {{user.last_name}}</p>
+                <p>@{{user.username}}</p>
+                {% else %} 
+                <p>{{user.first_name}} {{user.last_name}}</p>
+                <p>@{{user.username}}</p>
+                <p>{{user.email}}</p>
+                <p>{{user.age}}</p>
+                <p>{{user.phone}}</p>
+                <a href="{% url 'accounts:update-profile' user.id %}">Edit Profile</a>
+            {% endif %}
+        </div>
+
+        <div class="rooms-container">
+                    <h2>Available Study Rooms ({{rooms.count}})</h2>
         {% for room in rooms %}
         <h4><a href="{% url 'main:room' room.id %}">{{room.name}}</a></h4>
         <ul>
             <li>Topic: {{room.topic.name}}</li>
             <li>Description: {{room.description}}</li>
-            <li>Host: <a href="{% url 'accounts:profile' room.host.id %}">{{room.host.username}}</a></li>
+            <li>Host: {{room.host.username}}</li>
             <li>Time Created: {{room.created_at|timesince}} age</li>
         </ul>
         <hr>
         {% endfor %}
+        </div>
     </div>
 
     <div class="recent-activity-acontainer">

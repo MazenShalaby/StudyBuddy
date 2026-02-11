@@ -33,6 +33,21 @@ class CustomUserCreationForm(UserCreationForm):
         self.fields["password1"].widget.attrs["placeholder"] = "Enter password"
         self.fields["password2"].widget.attrs["placeholder"] = "Enter password confirm"
 
+class CustomUserChangeForm(UserChangeForm):
+    class Meta:
+        model = CustomUser
+        fields = (
+            "email",
+            'username',
+            "first_name",
+            "last_name",
+            "age",
+            "phone",
+            "gender",
+            "country",
+            "profile_picture",
+        )
+
 
 class LoginForm(AuthenticationForm):
     username = forms.CharField(widget=forms.TextInput())

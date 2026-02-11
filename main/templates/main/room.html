@@ -9,7 +9,7 @@
     <ul>
         <li>Topic: {{room.topic.name}}</li>
         <li>Description: {{room.description}}</li>
-        <li>Host: {{room.host.username}}</li>
+        <li>Host: <a href="{% url 'accounts:profile' room.host.id %}">{{room.host.username}}</a></li>
         <li>Time Created: {{room.created_at|timesince}} age</li>
     </ul>
     {% if request.user == room.host %}
@@ -22,8 +22,12 @@
         <h2>Room Conversation</h2>
         {% for message in room_messages %}
         <ul>
-            <li>User: <b>{{message.user.username}}</b> {{message.created_at|timesince}} ago</li>
+            <li> <a href="{% url 'accounts:profile' message.user.id %}">{{message.user.username}}</a> {{message.created_at|timesince}} ago</li>
             <p>Message Body: {{message.body}}</p>
+            {% if request.user == message.user %}
+            <a href="{% url 'main:update-message' message.id %}">Update</a>
+                <a href="{% url 'main:delete-message' message.id %}">Delete</a>
+            {% endif %}
         </ul>
         <hr>
         {% endfor %}
