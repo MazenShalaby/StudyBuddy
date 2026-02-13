@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Browse Topics
+{% endblock title %}
+
+
+{% block content %}
+    <div class="browse-topics-container">
+        {% for topic in topics %}
+            <p><a href="{% url 'main:rooms' %}?q={{topic.name}}">{{topic.name}}</a> ({{topic.rooms_count}})</p>
+        {% endfor %}
+        <form action="{% url 'main:browse-topics' %}" method="get">
+            <input type="search" name="q" id="" placeholder="Search for topics here...">
+        </form>
+    </div>
+{% endblock content %}

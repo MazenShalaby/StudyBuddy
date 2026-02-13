@@ -219,3 +219,5 @@ __marimo__/
 .venv/
 .venv
 *.sqlite3
+media/
+media

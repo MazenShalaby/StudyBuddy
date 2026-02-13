@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.db.models import Q
+from django.db.models import Q, Count
 from django.http import HttpResponse
 
 from .models import Topic, Room, Message
@@ -40,15 +40,17 @@ def rooms(request):
 def room(request, room_id):
     room = get_object_or_404(Room, id=room_id)
     room_messages = room.room_messages.all()
+
     
     if request.method == 'POST':
         message_body = request.POST.get('msg', '')
         if message_body:
-            Message.objects.create(
+            new_message = Message.objects.create(
                 user=request.user,
                 room = room,
                 body = message_body,
             )
+            room.participants.add(new_message.user)
         else:
             messages.error(request, 'Message body must have a content and can\'t be left blank!') # show a msg to the user !
     context = {'room': room, 'room_messages': room_messages}
@@ -108,6 +110,20 @@ def delete_room(request, room_id):
     context = {'room': room}
     return render(request, 'main/delete_room.html', context)
 
+####################################################### [Browse Topics] ####################################################
+
+@login_required(login_url='accounts:login')
+def browse_topics(request):
+
+    q = request.GET.get('q', '')
+    topics = (
+        Topic.objects
+        .filter(name__icontains=q)
+        .annotate(rooms_count=Count('topic_rooms')) # For preventing N+1 queries while counting each topic's rooms, In the template we use that annotate attr {{topic.rooms_count}}
+    )
+    
+    context = {'rooms': rooms, 'topics': topics}
+    return render(request, 'main/browse_topics.html', context)
 
 ####################################################### [Message] ####################################################
 

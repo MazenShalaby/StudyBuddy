@@ -1,42 +1,65 @@
 {% extends 'base.html' %}
 
 {% block title %}
-    {{room.name}} Room
+{{room.name}} Room
 {% endblock title %}
 
 {% block content %}
-    <h4>{{room.name}}</h4>
-    <ul>
-        <li>Topic: {{room.topic.name}}</li>
-        <li>Description: {{room.description}}</li>
-        <li>Host: <a href="{% url 'accounts:profile' room.host.id %}">{{room.host.username}}</a></li>
-        <li>Time Created: {{room.created_at|timesince}} age</li>
-    </ul>
-    {% if request.user == room.host %}
+
+<style>
+    .container{
+        display: grid;
+        grid-template-columns: 4fr 1fr;
+    }
+
+</style>
+
+<div class="container">
+    <div class="room-body">
+        <h4>{{room.name}}</h4>
+        <ul>
+            <li>Topic: {{room.topic.name}}</li>
+            <li>Description: {{room.description}}</li>
+            <li>Host: <a href="{% url 'accounts:profile' room.host.id %}">{{room.host.username}}</a></li>
+            <li>Time Created: {{room.created_at|timesince}} age</li>
+        </ul>
+        {% if request.user == room.host %}
         <a href="{% url 'main:update-room' room.id %}">Update</a> |
         <a href="{% url 'main:delete-room' room.id %}">Delete</a>
-    {% endif %}
-    <p><a href="{% url 'main:rooms' %}">Go Back</a></p>
-    <hr>
-    <div class="conversation">
-        <h2>Room Conversation</h2>
-        {% for message in room_messages %}
-        <ul>
-            <li> <a href="{% url 'accounts:profile' message.user.id %}">{{message.user.username}}</a> {{message.created_at|timesince}} ago</li>
-            <p>Message Body: {{message.body}}</p>
-            {% if request.user == message.user %}
-            <a href="{% url 'main:update-message' message.id %}">Update</a>
-                <a href="{% url 'main:delete-message' message.id %}">Delete</a>
-            {% endif %}
-        </ul>
+        {% endif %}
+        <p><a href="{% url 'main:rooms' %}">Go Back</a></p>
         <hr>
-        {% endfor %}
-        <div class="conversation-form">
-            <form action="{% url 'main:room' room.id %}" method="post">
-                {% csrf_token %}
-                <input type="text" name="msg" id="" placeholder="Enter your messages here...">
-                <input type="submit" value="send">
-            </form>
+
+        <div class="conversation">
+            <h2>Room Conversation</h2>
+            {% for message in room_messages %}
+            <ul>
+                <li> <a href="{% url 'accounts:profile' message.user.id %}">{{message.user.username}}</a>
+                    {{message.created_at|timesince}} ago</li>
+                <p>Message Body: {{message.body}}</p>
+                {% if request.user == message.user %}
+                <a href="{% url 'main:update-message' message.id %}">Update</a>
+                <a href="{% url 'main:delete-message' message.id %}">Delete</a>
+                {% endif %}
+            </ul>
+            <hr>
+            {% endfor %}
+
+            <div class="conversation-form">
+                <form action="{% url 'main:room' room.id %}" method="post">
+                    {% csrf_token %}
+                    <input type="text" name="msg" id="" placeholder="Enter your messages here...">
+                    <input type="submit" value="send">
+                </form>
+            </div>
+
         </div>
     </div>
+    <div class="participants-section">
+        <h3>Room Participants</h3>
+        {% for user in room.participants.all %}
+            <p>@{{user.username}}</p>
+        {% endfor %}
+    </div>
+</div>
 {% endblock content %}

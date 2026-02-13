@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+
+{% block title %}
+    {{user.username}} Topics
+{% endblock title %}
+
+
+{% block content %}
+    <h2>
+        {{user.username}} Topics
+    </h2>
+    <div class="topics-container">
+        {% for topic in topics %}
+            <p><a href="{% url 'accounts:profile' user.id %}?q={{topic.name}}">{{topic.name}}</a> ({{topic.rooms_count}})</p>
+        {% endfor %}
+        <div class="search-topic">
+            <form action="{% url 'accounts:user-topics' user.id %}" method="get">
+                <input type="search" name="q" id="" placeholder="Search for user topics here...">
+            </form>
+        </div>
+    </div>
+{% endblock content %}

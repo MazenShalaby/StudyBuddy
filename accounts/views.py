@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
-from django.db.models import Q 
+from django.db.models import Q, Count
 from django.contrib.auth import get_user_model
 from django.http import HttpResponse
 
@@ -81,12 +81,16 @@ def logout_view(request):
 def user_profile(request, user_id):
     
     user = get_object_or_404(get_user_model(), id=user_id)
-    rooms = Room.objects.select_related('topic').filter(host=user)
-    topics = Topic.objects.prefetch_related('topic_rooms')
-    recent_activity_messages = Message.objects.select_related('room').filter(user=user)
     q = request.GET.get('q', '')
+    user_topics = (
+        Topic.objects
+        .filter(topic_rooms__host=user)
+        .annotate(rooms_count=Count('topic_rooms'))
+    )
+    rooms = Room.objects.select_related('topic').filter(host=user, topic__name__icontains=q)
+    recent_activity_messages = Message.objects.select_related('room').filter(user=user)
     
-    context = {'user': user, 'rooms': rooms, 'topics': topics, 'recent_activity_messages': recent_activity_messages}
+    context = {'user': user, 'user_topics':user_topics, 'rooms': rooms, 'recent_activity_messages': recent_activity_messages}
     return render(request, 'accounts/user_profile.html', context)
 
 
@@ -109,3 +113,21 @@ def update_profile(request, user_id):
     
     context = {'form': form}
     return render(request, 'accounts/update_profile.html', context)
+
+
+################################################################################################################
+
+@login_required(login_url='accounts:login')
+def browse_user_topics(request, user_id):
+    
+    user = get_object_or_404(get_user_model(), id=user_id)
+    q = request.GET.get('q', '')
+    if request.method == 'GET':
+        topics = (
+        Topic.objects
+        .filter(name__icontains=q, topic_rooms__host=user)
+        .annotate(rooms_count=Count('topic_rooms'))
+    )
+    
+    context = {'user': user, 'topics': topics}
+    return render(request, 'accounts/user_topics.html', context)

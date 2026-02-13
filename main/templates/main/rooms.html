@@ -19,9 +19,9 @@
         <h2>Browse Topics</h2>
         <a href="{% url 'main:rooms' %}">All</a>
         {% for topic in topics %}
-        <p><a href="{% url 'main:rooms' %}?q={{topic.name}}">{{topic.name}}</a></p>
+        <p><a href="{% url 'main:rooms' %}?q={{topic.name}}">{{topic.name}}</a> ({{topic.topic_rooms.all.count}})</p>
         {% endfor %}
-        <a href="">More</a>
+        <a href="{% url 'main:browse-topics' %}">More</a>
     </div>
 
     <div class="rooms-contianer">

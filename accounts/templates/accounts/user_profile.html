@@ -16,12 +16,12 @@
 <div class="container">
 
     <div class="browse-topics-contianer">
-        <h2>Browse Topics</h2>
-        <a href="{% url 'main:rooms' %}">All</a>
-        {% for topic in topics %}
-        <p><a href="{% url 'main:rooms' %}?q={{topic.name}}">{{topic.name}}</a></p>
+        <h2>Browse {{user.username|capfirst}}'s Topics</h2>
+        <a href="{% url 'accounts:profile' user.id %}">All</a>
+        {% for topic in user_topics %}
+            <p><a href="{% url 'accounts:profile' user.id %}?q={{topic.name}}">{{topic.name}}</a> ({{topic.rooms_count}})</p>
         {% endfor %}
-        <a href="">More</a>
+        <a href="{% url 'accounts:user-topics' user.id %}">More</a>
     </div>
 
     <div class="body-contianer">
@@ -47,7 +47,7 @@
         </div>
 
         <div class="rooms-container">
-                    <h2>Available Study Rooms ({{rooms.count}})</h2>
+                    <h2>{{user.username|capfirst}}'s Study Rooms ({{rooms.count}})</h2>
         {% for room in rooms %}
         <h4><a href="{% url 'main:room' room.id %}">{{room.name}}</a></h4>
         <ul>
@@ -62,7 +62,7 @@
     </div>
 
     <div class="recent-activity-acontainer">
-        <h2>Recent Activity</h2>
+        <h2>{{user.username|capfirst}}'s Recent Activity</h2>
             {% for message in recent_activity_messages %}
                 <p><a href="">{{message.user.username}}</a> {{message.created_at|timesince}} ago</p>
                 <p>{{message}}</p>

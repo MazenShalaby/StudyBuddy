@@ -1,22 +1,31 @@
 from django.urls import path
 
-from .views import home, rooms, room,  create_room, update_room, delete_room, update_message, delete_message 
+from .views import (
+    home,
+    rooms,
+    room,
+    create_room,
+    update_room,
+    delete_room,
+    update_message,
+    delete_message,
+    browse_topics
+)
 
 # Create your urls here.
 
-app_name = 'main'
+app_name = "main"
 
 urlpatterns = [
-    path('', home, name='home'),
-    
-    # Room 
-    path('rooms/', rooms, name='rooms'),
-    path('rooms/<int:room_id>/', room, name='room'),
-    path('rooms/create/', create_room, name='create-room'),
-    path('rooms/update/<int:room_id>/', update_room, name='update-room'),
-    path('rooms/delete/<int:room_id>/', delete_room, name='delete-room'),
-    
-    # Message 
-    path('rooms/update/message/<int:msg_id>/', update_message, name='update-message'),
-    path('rooms/delete/message/<int:msg_id>/', delete_message, name='delete-message'),
+    path("", home, name="home"),
+    # Room
+    path("rooms/", rooms, name="rooms"),
+    path("rooms/<int:room_id>/", room, name="room"),
+    path("rooms/create/", create_room, name="create-room"),
+    path("rooms/update/<int:room_id>/", update_room, name="update-room"),
+    path("rooms/delete/<int:room_id>/", delete_room, name="delete-room"),
+    # Message
+    path("rooms/update/message/<int:msg_id>/", update_message, name="update-message"),
+    path("rooms/delete/message/<int:msg_id>/", delete_message, name="delete-message"),
+    path("browse_topics/", browse_topics, name="browse-topics"),
 ]
