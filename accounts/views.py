@@ -30,7 +30,7 @@ def register(request):
             login(request, user)
             return redirect('main:rooms')
         else:
-            messages.error(request, "An error has been occured during room update!")
+            messages.error(request, "An error has been occured during registration!")
     else:
         form = CustomUserCreationForm()
         
@@ -69,11 +69,9 @@ def login_view(request):
     return render(request, 'accounts/login_register.html', context)
 
 
-
 def logout_view(request):
     logout(request)
     return redirect('main:home')
-
 
 ####################################################### [User Profile] ####################################################
 
@@ -114,13 +112,13 @@ def update_profile(request, user_id):
     context = {'form': form}
     return render(request, 'accounts/update_profile.html', context)
 
-
 ################################################################################################################
 
 @login_required(login_url='accounts:login')
 def browse_user_topics(request, user_id):
     
     user = get_object_or_404(get_user_model(), id=user_id)
+    topics = Topic.objects.filter(topic_rooms__host=user)
     q = request.GET.get('q', '')
     if request.method == 'GET':
         topics = (

@@ -15,19 +15,12 @@ class CustomUser(AbstractUser):
         return country_choices
     
     age = models.PositiveIntegerField(blank=True, null=True)
-    gender = models.CharField(max_length=10, choices=[('M', 'Male'), ('F', 'Female')], blank=True, null=True)
+    gender = models.CharField(max_length=10, choices=[('M', 'Male'), ('F', 'Female')], blank=True, null=False)
     phone = models.CharField(
         max_length=11,
         unique=True,
         validators=[RegexValidator(regex=r'^\d{11}$', message='Phone number must be 11 digits')],
         blank=True,
-        null=True,
-    )
-    phone = models.CharField(
-        max_length=11,
-        unique=True,
-        validators=[RegexValidator(regex=r'^\d{11}$', message='Phone number must be 11 digits')],
-        blank=False,
         null=False,
     )
     country = models.CharField(max_length=2, default='US', choices=get_country())
