@@ -19,7 +19,7 @@ def home(request):
 @login_required(login_url='accounts:login')
 def rooms(request):
     rooms = Room.objects.select_related('topic')
-    rooms_count = rooms.count()
+    topics_count = Topic.objects.all().count()
     topics = Topic.objects.prefetch_related('topic_rooms')[:3] # limiting the topics to only 3 to be shown.
     recent_activity_messages = Message.objects.select_related('room')
     q = request.GET.get('q', '')
@@ -31,7 +31,7 @@ def rooms(request):
             Q(topic__name__icontains=q)
             )
     
-    context = {'rooms': rooms, 'rooms_count':rooms_count, 'topics': topics, 'recent_activity_messages': recent_activity_messages}
+    context = {'rooms': rooms, 'topics_count':topics_count, 'topics': topics, 'recent_activity_messages': recent_activity_messages}
     return render(request, 'main/rooms.html', context)
 
 

@@ -221,7 +221,3 @@ __marimo__/
 *.sqlite3
 media/
 media
-ss_templates/
-ss_templates
-ss_theme/
-ss_theme

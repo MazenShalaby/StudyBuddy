@@ -39,34 +39,28 @@ def register(request):
 
 
 def login_view(request):
-    
+
     page = 'login'
-    
+
     if request.user.is_authenticated:
         return redirect('main:rooms')
-    
+
     if request.method == 'POST':
         form = LoginForm(request, data=request.POST)
         if form.is_valid():
-            username = form.cleaned_data.get('username')
-            password = form.cleaned_data.get('password')
-
-            user = authenticate(request, username=username, password=password)
-            
-            if user is not None:
-                login(request, user)
-                return redirect("main:rooms")
-            else:
-                raise ValueError("User does not exist!")
-        
-        else:           
-            messages.error(request, "An error has been occured during login!")
-            
+            login(request, form.get_user())
+            return redirect('main:rooms')
+        else:
+            messages.error(request, "Invalid username or password")
     else:
-        form = LoginForm()
-    
-    context = {'form': form, 'page': page}
-    return render(request, 'accounts/login_register.html', context)
+        form = LoginForm(request)
+
+    return render(
+        request,
+        'accounts/login_register.html',
+        {'form': form, 'page': page}
+    )
+
 
 
 def logout_view(request):
@@ -85,10 +79,11 @@ def user_profile(request, user_id):
         .filter(topic_rooms__host=user)
         .annotate(rooms_count=Count('topic_rooms'))
     )
+    user_topics_length = user_topics[:3]
     rooms = Room.objects.select_related('topic').filter(host=user, topic__name__icontains=q)
     recent_activity_messages = Message.objects.select_related('room').filter(user=user)
     
-    context = {'user': user, 'user_topics':user_topics, 'rooms': rooms, 'recent_activity_messages': recent_activity_messages}
+    context = {'user': user, 'user_topics': user_topics, 'user_topics_length':user_topics_length, 'rooms': rooms, 'recent_activity_messages': recent_activity_messages}
     return render(request, 'accounts/user_profile.html', context)
 
 

@@ -16,9 +16,9 @@ Rooms
             </div>
             <ul class="topics__list">
                 <li>
-                    <a href="{% url 'accounts:profile' user.id %}" class="active">All</a>
+                    <a href="{% url 'accounts:profile' user.id %}" class="active">All <span>{{user_topics.all.count}}</span></a>
                 </li>
-                {% for topic in user_topics %}
+                {% for topic in user_topics_length %}
                     <li>
                         <a href="{% url 'accounts:profile' user.id %}?q={{topic.name}}">{{topic.name}} <span>{{topic.rooms_count}}</span></a>
                     </li>

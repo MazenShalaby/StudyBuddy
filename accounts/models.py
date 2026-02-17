@@ -19,10 +19,11 @@ class CustomUser(AbstractUser):
     phone = models.CharField(
         max_length=11,
         unique=True,
-        validators=[RegexValidator(regex=r'^\d{11}$', message='Phone number must be 11 digits')],
+        validators=[RegexValidator(regex=r'^\d{11}$')],
         blank=True,
-        null=False,
+        null=True,
     )
+
     country = models.CharField(max_length=2, default='US', choices=get_country())
     profile_picture = models.ImageField(upload_to='profile_pictures/', default='profile_pictures/avatar.svg', blank=True, null=False)
     
