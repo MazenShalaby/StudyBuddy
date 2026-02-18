@@ -138,7 +138,7 @@ def delete_message(request, msg_id):
     if request.user == message.user:
         if request.method == 'POST':
             message.delete()
-            return redirect('main:room', room_id=room.id)
+            return redirect('main:rooms')
     else:
         return HttpResponse("Your are not allowed to perform his action!")
     

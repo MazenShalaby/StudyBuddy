@@ -39,11 +39,11 @@ Browse Topics
 
                 <ul class="topics__list">
                     <li>
-                        <a href="{% url 'main:browse-topics' %}">All <span>{{topics.all.count}}</span></a>
+                        <a>Total Topics<span>{{topics.all.count}}</span></a>
                     </li>
                     {% for topic in topics %}
                         <li>
-                            <a href="{% url 'main:rooms' %}?q={{topic.name}}">{{topic.name}} <span>{{topic.rooms_count}}</span></a>
+                            <a href="{% url 'main:rooms' %}?q={{topic.name}}" title="Total {{topic.name}} topic rooms!">{{topic.name}} <span>{{topic.rooms_count}}</span></a>
                         </li>
                         </li>
                     {% endfor %}
