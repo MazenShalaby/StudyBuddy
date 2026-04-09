@@ -22,7 +22,7 @@ def register(request):
         return redirect('main:rooms')
     
     if request.method == 'POST':
-        form = CustomUserCreationForm(data=request.POST)
+        form = CustomUserCreationForm(request.POST, request.FILES)
         if form.is_valid():
             user = form.save(commit=False)
             user.username = user.username.lower()
