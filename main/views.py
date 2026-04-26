@@ -86,10 +86,15 @@ def create_room(request):
     topics = Topic.objects.all()
     if request.method == "POST":
         form = RoomCreationForm(data=request.POST)
-        if form.is_valid():
-            new_form = form.save(commit=False)
-            new_form.host = request.user
-            new_form.save()
+        topic_name = request.POST.get("topic", "")
+        topic, created = Topic.objects.get_or_create(name=topic_name)
+        if created:
+            Room.objects.create(
+                host=request.user,
+                topic=topic,
+                name=request.POST.get("name"),
+                description = request.POST.get("description"),
+            )
             return redirect("main:rooms")
         else:
             messages.error(request, "An error has been occured during room creation!")
