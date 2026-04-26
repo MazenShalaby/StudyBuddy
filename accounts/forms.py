@@ -46,6 +46,7 @@ class CustomUserChangeForm(UserChangeForm):
             "gender",
             "country",
             "profile_picture",
+            "bio",
         )
 
 

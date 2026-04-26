@@ -26,7 +26,7 @@ class CustomUser(AbstractUser):
 
     country = models.CharField(max_length=2, default='US', choices=get_country())
     profile_picture = models.ImageField(upload_to='profile_pictures/', default='profile_pictures/avatar.svg', blank=True, null=False)
-    
+    bio = models.TextField(max_length=1500, null=False, blank=True, default="Your bio")
     class Meta:
         verbose_name = 'user'
         verbose_name_plural = 'users'
