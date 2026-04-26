@@ -4,7 +4,7 @@ from django.conf import settings
 
 
 class Topic(models.Model):
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, db_index=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -33,6 +33,12 @@ class Room(models.Model):
         ordering = ['created_at']
         verbose_name = 'room'
         verbose_name_plural = 'rooms'
+        
+        indexes = [
+            models.Index(fields=['name']),
+            models.Index(fields=['topic']),
+            models.Index(fields=['host']),
+        ]
         
         
 class Message(models.Model):
