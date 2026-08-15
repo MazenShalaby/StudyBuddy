@@ -75,7 +75,7 @@ def user_profile(request, user_id):
     user = get_object_or_404(get_user_model(), id=user_id)
     q = request.GET.get('q', '')
     user_topics = (
-        Topic.objects
+        Topic.objects.prefetch_related('topic_rooms')
         .filter(topic_rooms__host=user)
         .annotate(rooms_count=Count('topic_rooms'))
     )
@@ -113,11 +113,11 @@ def update_profile(request, user_id):
 def browse_user_topics(request, user_id):
     
     user = get_object_or_404(get_user_model(), id=user_id)
-    topics = Topic.objects.filter(topic_rooms__host=user)
+    topics = Topic.objects.prefetch_related('topic_rooms').filter(topic_rooms__host=user)
     q = request.GET.get('q', '')
     if request.method == 'GET':
         topics = (
-        Topic.objects
+        Topic.objects.prefetch_related('topic_rooms')
         .filter(name__icontains=q, topic_rooms__host=user)
         .annotate(rooms_count=Count('topic_rooms'))
     )

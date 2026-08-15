@@ -23,7 +23,7 @@ def home(request):
 @login_required(login_url="accounts:login")
 def rooms(request):
     rooms = Room.objects.select_related("topic")
-    topics_count = Topic.objects.all().count()
+    topics_count = Topic.objects.prefetch_related('topic_rooms').count()
     topics = Topic.objects.prefetch_related("topic_rooms")[:3]  # limiting the topics to only 3 to be shown.
     recent_activity_messages = Message.objects.select_related("room")
     # q = request.GET.get('q', '')
@@ -40,7 +40,7 @@ def rooms(request):
         search_query = SearchQuery(query)
         search_rank = SearchRank(search_vector, search_query)
         rooms = (
-            Room.objects.annotate(
+            Room.objects.select_related('topic').annotate(
                 search=search_vector,
                 rank=search_rank,
             )
@@ -59,7 +59,7 @@ def rooms(request):
 
 @login_required(login_url="accounts:login")
 def room(request, room_id):
-    room = get_object_or_404(Room, id=room_id)
+    room = Room.objects.prefetch_related('room_messages').get(id=room_id)
     room_messages = room.room_messages.all()
 
     if request.method == "POST":
@@ -83,7 +83,7 @@ def room(request, room_id):
 def create_room(request):
 
     page = "create"
-    topics = Topic.objects.all()
+    topics = Topic.objects.prefetch_related('topic_rooms')
     if request.method == "POST":
         form = RoomCreationForm(data=request.POST)
         topic_name = request.POST.get("topic", "")
@@ -108,7 +108,7 @@ def create_room(request):
 @login_required(login_url="accounts:login")
 def update_room(request, room_id):
 
-    room = get_object_or_404(Room, id=room_id)
+    room = Room.objects.prefetch_related('room_messages').get(id=room_id)
     form = RoomCreationForm(instance=room)
     if request.user == room.host:
         if request.method == "POST":
@@ -128,7 +128,7 @@ def update_room(request, room_id):
 @login_required(login_url="accounts:login")
 def delete_room(request, room_id):
 
-    room = get_object_or_404(Room, id=room_id)
+    room = Room.objects.prefetch_related('room_messages').get(id=room_id)
     if request.user == room.host:
         if request.method == "POST":
             room.delete()
@@ -146,10 +146,10 @@ def delete_room(request, room_id):
 @login_required(login_url="accounts:login")
 def browse_topics(request):
 
-    topics = Topic.objects.all()
+    topics = Topic.objects.prefetch_related('topic_rooms')
     q = request.GET.get("q", "")
     if request.method == "GET":
-        topics = Topic.objects.filter(name__icontains=q).annotate(
+        topics = topics.filter(name__icontains=q).annotate(
             rooms_count=Count("topic_rooms")
         )  # For preventing N+1 queries while counting each topic's rooms, In the template we use that annotate attr {{topic.rooms_count}} if our temp varibale in the loop is topic.
 
@@ -163,7 +163,7 @@ def browse_topics(request):
 @login_required(login_url="main:login")
 def delete_message(request, msg_id):
 
-    message = get_object_or_404(Message, id=msg_id)
+    message = Message.objects.select_related('room', 'user').get(id=msg_id)
     room = message.room
     if request.user == message.user:
         if request.method == "POST":
@@ -179,7 +179,7 @@ def delete_message(request, msg_id):
 @login_required(login_url="main:login")
 def update_message(request, msg_id):
 
-    message = get_object_or_404(Message, id=msg_id)
+    message = Message.objects.select_related('room', 'user').get(id=msg_id)
     room = message.room
     form = UpdateMessageForm(instance=message)
     if request.user == message.user:
