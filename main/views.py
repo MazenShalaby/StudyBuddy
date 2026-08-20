@@ -59,7 +59,7 @@ def rooms(request):
 
 @login_required(login_url="accounts:login")
 def room(request, room_id):
-    room = Room.objects.prefetch_related('room_messages').get(id=room_id)
+    room = Room.objects.select_related('topic', 'host').prefetch_related('room_messages').get(id=room_id)
     room_messages = room.room_messages.all()
 
     if request.method == "POST":
@@ -87,12 +87,12 @@ def create_room(request):
     if request.method == "POST":
         form = RoomCreationForm(data=request.POST)
         topic_name = request.POST.get("topic", "")
-        topic, created = Topic.objects.get_or_create(name=topic_name)
+        topic, _ = Topic.objects.get_or_create(name=topic_name)
         if topic:
             Room.objects.create(
                 host=request.user,
                 topic=topic,
-                name=request.POST.get("name"),
+                name = request.POST.get("name"),
                 description = request.POST.get("description"),
             )
             return redirect("main:rooms")
