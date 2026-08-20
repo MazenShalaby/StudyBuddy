@@ -23,9 +23,10 @@
                     </div>
                 </div>
                 <div class="layout__body">
-                    <form class="form" action="#">
+                    <form class="form" action="{% url 'main:delete-room' room_id=room.id %}" method="post">
+                        {% csrf_token %}
                         <div class="form__group">
-                            <p>Are you sure you want to delete "{{room.name}}"?</p>
+                            <p>Are you sure you want to delete the room named "{{room.name}}"?</p>
                         </div>
 
                         <div class="for__group">

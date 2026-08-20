@@ -129,11 +129,12 @@ def update_room(request, room_id):
 def delete_room(request, room_id):
 
     room = Room.objects.select_related('topic', 'host').prefetch_related('room_messages').get(id=room_id)
-    if request.user == room.host:
-        room.delete()
-        return redirect("main:rooms")
-    else:
-        return HttpResponse("You are not allowed to perform this action!")
+    if request.method == "POST":
+        if request.user == room.host:
+            room.delete()
+            return redirect("main:rooms")
+        else:
+            return HttpResponse("You are not allowed to perform this action!")
 
     context = {"room": room}
     return render(request, "main/delete_room.html", context)
