@@ -128,11 +128,10 @@ def update_room(request, room_id):
 @login_required(login_url="accounts:login")
 def delete_room(request, room_id):
 
-    room = Room.objects.prefetch_related('room_messages').get(id=room_id)
+    room = Room.objects.select_related('topic', 'host').prefetch_related('room_messages').get(id=room_id)
     if request.user == room.host:
-        if request.method == "POST":
-            room.delete()
-            return redirect("main:rooms")
+        room.delete()
+        return redirect("main:rooms")
     else:
         return HttpResponse("You are not allowed to perform this action!")
 
