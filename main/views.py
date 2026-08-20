@@ -34,13 +34,13 @@ def rooms(request):
     #         Q(topic__name__icontains=q)
     #         )
 
-    query = request.GET.get("q")
-    if request.method == "GET" and query:
+    query = request.GET.get("q", "")
+    if query:
         search_vector = SearchVector("name", "host__username", "topic__name")
         search_query = SearchQuery(query)
         search_rank = SearchRank(search_vector, search_query)
         rooms = (
-            Room.objects.select_related('topic').annotate(
+            Room.objects.select_related('topic', 'host').annotate(
                 search=search_vector,
                 rank=search_rank,
             )
