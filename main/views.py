@@ -187,20 +187,21 @@ def update_message(request, msg_id):
     message = Message.objects.select_related('room', 'user').get(id=msg_id)
     room = message.room
     form = UpdateMessageForm(instance=message)
-    if request.user == message.user:
-        if request.method == "POST":
+    
+    if request.method == "POST":
+        if request.user == message.user:
             form = UpdateMessageForm(data=request.POST, instance=message)
             if form.is_valid():
-                user = form.save(commit=False)
-                user.user = request.user
-                user.save()
+                updated_form = form.save(commit=False)
+                updated_form.user = request.user
+                updated_form.save()
                 return redirect("main:room", room_id=room.id)
             else:
                 messages.error(
                     request, "An error has been occured during updating the message!"
                 )
-    else:
-        return HttpResponse("Your are not allowed to perform his action!")
+        else:
+            return HttpResponse("Your are not allowed to perform his action!")
 
     context = {"message": message, "room": room, "form": form}
     return render(request, "main/update_message.html", context)
