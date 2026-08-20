@@ -22,19 +22,13 @@ def home(request):
 
 @login_required(login_url="accounts:login")
 def rooms(request):
+    
     rooms = Room.objects.select_related("topic")
     topics_count = Topic.objects.prefetch_related('topic_rooms').count()
     topics = Topic.objects.prefetch_related("topic_rooms")[:3]  # limiting the topics to only 3 to be shown.
     recent_activity_messages = Message.objects.select_related("room")
-    # q = request.GET.get('q', '')
-    # if request.method == 'GET':
-    #     rooms = rooms.filter(
-    #         Q(name__icontains=q)|
-    #         Q(host__username__icontains=q)|
-    #         Q(topic__name__icontains=q)
-    #         )
-
     query = request.GET.get("q", "")
+    
     if query:
         search_vector = SearchVector("name", "host__username", "topic__name")
         search_query = SearchQuery(query)
@@ -59,6 +53,7 @@ def rooms(request):
 
 @login_required(login_url="accounts:login")
 def room(request, room_id):
+    
     room = Room.objects.select_related('topic', 'host').prefetch_related('room_messages').get(id=room_id)
     room_messages = room.room_messages.all()
 
@@ -84,6 +79,7 @@ def create_room(request):
 
     page = "create"
     topics = Topic.objects.prefetch_related('topic_rooms')
+    
     if request.method == "POST":
         form = RoomCreationForm(data=request.POST)
         topic_name = request.POST.get("topic", "")
@@ -110,6 +106,7 @@ def update_room(request, room_id):
 
     room = Room.objects.select_related('topic', 'host').prefetch_related('room_messages').get(id=room_id)
     form = RoomCreationForm(instance=room)
+    
     if request.user == room.host:
         if request.method == "POST":
             form = RoomCreationForm(data=request.POST, instance=room)
@@ -148,6 +145,7 @@ def browse_topics(request):
 
     topics = Topic.objects.prefetch_related('topic_rooms')
     query = request.GET.get("query", "")
+    
     if query:
         search_vector = SearchVector("name")
         search_query = SearchQuery(query)
