@@ -147,12 +147,18 @@ def delete_room(request, room_id):
 def browse_topics(request):
 
     topics = Topic.objects.prefetch_related('topic_rooms')
-    q = request.GET.get("q", "")
-    if request.method == "GET":
-        topics = topics.filter(name__icontains=q).annotate(
+    query = request.GET.get("query", "")
+    if query:
+        search_vector = SearchVector("name")
+        search_query = SearchQuery(query)
+        search_rank = SearchRank(search_vector, search_query)
+        
+        topics = topics.annotate(
+            search=search_vector,
+            rank=search_rank,
             rooms_count=Count("topic_rooms")
-        )  # For preventing N+1 queries while counting each topic's rooms, In the template we use that annotate attr {{topic.rooms_count}} if our temp varibale in the loop is topic.
-
+        ).filter(search=search_query).order_by('-rank')  # For preventing N+1 queries while counting each topic's rooms, In the template we use that annotate attr {{topic.rooms_count}} if our temp varibale in the loop is topic.
+        
     context = {"topics": topics}
     return render(request, "main/browse_topics.html", context)
 
