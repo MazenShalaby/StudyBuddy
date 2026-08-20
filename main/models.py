@@ -1,12 +1,17 @@
 from django.db import models
 from django.conf import settings
+
 # Create your models here.
 
-
-class Topic(models.Model):
-    name = models.CharField(max_length=255, db_index=True)
+class TimeStampModel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        abstract = True
+
+class Topic(TimeStampModel):
+    name = models.CharField(max_length=255, db_index=True)
     
     class Meta:
         ordering = ['created_at']
@@ -17,14 +22,12 @@ class Topic(models.Model):
         return self.name
 
 
-class Room(models.Model):
+class Room(TimeStampModel):
     host = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
     name = models.CharField(max_length=255)
     topic = models.ForeignKey(Topic, on_delete=models.SET_NULL, null=True, related_name='topic_rooms')
     description = models.TextField()
     participants = models.ManyToManyField(settings.AUTH_USER_MODEL, blank=True, related_name='room_participants') 
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
     
     def __str__(self):
         return self.name
@@ -41,12 +44,11 @@ class Room(models.Model):
         ]
         
         
-class Message(models.Model):
+class Message(TimeStampModel):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     body = models.TextField()
     room = models.ForeignKey(Room, on_delete=models.CASCADE, related_name='room_messages')
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+
     
     def __str__(self):
         return f"{self.body[:50]}"
