@@ -171,12 +171,13 @@ def delete_message(request, msg_id):
 
     message = Message.objects.select_related('room', 'user').get(id=msg_id)
     room = message.room
-    if request.user == message.user:
-        if request.method == "POST":
+    
+    if request.method == "POST":
+        if request.user == message.user:
             message.delete()
-            return redirect("main:rooms")
-    else:
-        return HttpResponse("Your are not allowed to perform his action!")
+            return redirect("main:room", room_id=room.id)
+        else:
+            return HttpResponse("Your are not allowed to perform his action!")
 
     context = {"message": message, "room": room}
     return render(request, "main/delete_message.html", context)
