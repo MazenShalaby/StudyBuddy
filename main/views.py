@@ -108,7 +108,7 @@ def create_room(request):
 @login_required(login_url="accounts:login")
 def update_room(request, room_id):
 
-    room = Room.objects.prefetch_related('room_messages').get(id=room_id)
+    room = Room.objects.select_related('topic', 'host').prefetch_related('room_messages').get(id=room_id)
     form = RoomCreationForm(instance=room)
     if request.user == room.host:
         if request.method == "POST":
